@@ -25,18 +25,5 @@ namespace BangazonWorkforce.Models
 
         public Department Department { get; set; }
 
-        public string SupervisorDisplay
-        {
-            get
-            {
-
-            if (this.IsSupervisor)
-            {
-                return "Yep";
-            }
-            return "Nope";
-
-            }
-        }
     }
 }

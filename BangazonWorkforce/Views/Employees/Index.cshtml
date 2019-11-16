@@ -39,7 +39,8 @@
                     @Html.DisplayFor(modelItem => item.LastName)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.SupervisorDisplay)
+                    @(item.IsSupervisor? "Totally" : "Not")
+                    @*@Html.DisplayFor(modelItem => item.IsSupervisor);*@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Department.Name)
