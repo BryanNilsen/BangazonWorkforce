@@ -233,10 +233,13 @@ namespace BangazonWorkforce.Controllers
                 {
                     cmd.CommandText = @"
                         SELECT e.Id, e.FirstName, e.LastName, e.DepartmentId, e.IsSupervisor,
-                            d.Name AS DepartmentName
+                            d.Name AS DepartmentName,
+							c.Manufacturer, c.Make, c.Id AS ComputerId
                         FROM Employee e
                         LEFT JOIN Department d on d.Id = e.DepartmentId
-                        WHERE e.Id = @id
+						LEFT JOIN ComputerEmployee ce on ce.ComputerId = e.Id
+						LEFT JOIN Computer c on ce.ComputerId = c.Id
+						WHERE e.Id = @id
                         ";
                     cmd.Parameters.Add(new SqlParameter("@id", id));
                     SqlDataReader reader = cmd.ExecuteReader();
@@ -257,8 +260,17 @@ namespace BangazonWorkforce.Controllers
                                 Name = reader.GetString(reader.GetOrdinal("DepartmentName"))
                             }
                         };
-                    }
 
+                        if (!reader.IsDBNull(reader.GetOrdinal("ComputerId")))
+                        {
+                            employee.Computer = new Computer()
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("ComputerId")),
+                                Make = reader.GetString(reader.GetOrdinal("Make")),
+                                Manufacturer = reader.GetString(reader.GetOrdinal("Manufacturer"))
+                            };
+                        }
+                    }
                     reader.Close();
                     return employee;
                 }
