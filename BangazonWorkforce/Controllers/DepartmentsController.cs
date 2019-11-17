@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BangazonWorkforce.Models;
+using BangazonWorkforce.Models.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
@@ -34,21 +35,23 @@ namespace BangazonWorkforce.Controllers
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                        SELECT d.Id, d.Name, d.Budget
+                        SELECT d.Id, d.Name, d.Budget, COUNT(d.id) AS EmployeeCount
                         FROM Department d
+						LEFT JOIN Employee e on e.DepartmentId = d.Id
+						GROUP BY d.Id, d.Name, d.Budget
                         ";
                     SqlDataReader reader = cmd.ExecuteReader();
 
-                    List<Department> departments = new List<Department>();
+                    List<DepartmentIndexViewModel> departments = new List<DepartmentIndexViewModel>();
                     while (reader.Read())
                     {
-                        Department department = new Department
+                        var department = new DepartmentIndexViewModel
                         {
                             Id = reader.GetInt32(reader.GetOrdinal("Id")),
                             Name = reader.GetString(reader.GetOrdinal("Name")),
                             Budget = reader.GetInt32(reader.GetOrdinal("Budget")),
+                            EmployeeCount = reader.GetInt32(reader.GetOrdinal("EmployeeCount"))
                         };
-
                         departments.Add(department);
                     }
 
@@ -61,7 +64,13 @@ namespace BangazonWorkforce.Controllers
         // GET: Departments/Details/5
         public ActionResult Details(int id)
         {
-            return View();
+            var viewModel = new DepartmentDetailViewModel();
+            var department = GetDepartmentById(id);
+            var employees = GetEmployeesByDepartmentId(id);
+            viewModel.Department = department;
+            viewModel.EmployeeCount = employees.Count();
+
+            return View(viewModel);
         }
 
         // GET: Departments/Create
@@ -187,6 +196,43 @@ namespace BangazonWorkforce.Controllers
 
                     reader.Close();
                     return department;
+                }
+            }
+        }
+        public List<Employee> GetEmployeesByDepartmentId(int id)
+        {
+
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                        SELECT e.Id, e.FirstName, e.LastName, e.IsSupervisor
+                        FROM Employee e
+						INNER JOIN Department d ON e.DepartmentId = d.Id
+						WHERE d.Id = @id
+                        ";
+                    cmd.Parameters.Add(new SqlParameter("@id", id));
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    List<Employee> employees = new List<Employee>();
+
+                    while (reader.Read())
+                    {
+                        if (!reader.IsDBNull(reader.GetOrdinal("Id")))
+                        {
+                            employees.Add(
+                            new Employee
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                                FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                                LastName = reader.GetString(reader.GetOrdinal("LastName")),
+                                IsSupervisor = reader.GetBoolean(reader.GetOrdinal("IsSupervisor"))
+                            });
+                        }
+                    }
+                    reader.Close();
+                    return employees;
                 }
             }
         }

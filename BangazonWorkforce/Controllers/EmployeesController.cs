@@ -304,5 +304,32 @@ namespace BangazonWorkforce.Controllers
                 }
             }
         }
+        private List<TrainingProgram> GetAllTrainingProgramsByEmployeeId()
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT Id, Name, Budget FROM Department";
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    List<Department> departments = new List<Department>();
+                    while (reader.Read())
+                    {
+                        departments.Add(new Department
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            Name = reader.GetString(reader.GetOrdinal("Name")),
+                            Budget = reader.GetInt32(reader.GetOrdinal("Budget")),
+                        });
+                    }
+
+                    reader.Close();
+
+                    return departments;
+                }
+            }
+        }
     }
 }
