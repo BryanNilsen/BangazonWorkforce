@@ -129,19 +129,59 @@ namespace BangazonWorkforce.Controllers
         // GET: Employees/Edit/5
         public ActionResult Edit(int id)
         {
-            return View();
+            var viewModel = new EmployeeEditViewModel();
+
+            var employee = GetEmployeeById(id);
+            viewModel.Employee = employee;
+
+            var departments = GetAllDepartments();
+            var selectItems = departments
+                .Select(department => new SelectListItem
+                {
+                    Text = department.Name,
+                    Value = department.Id.ToString()
+                })
+                .ToList();
+
+            viewModel.Departments = selectItems;
+
+            return View(viewModel);
         }
 
         // POST: Employees/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public ActionResult Edit(int id, EmployeeEditViewModel viewModel)
         {
             try
             {
-                // TODO: Add update logic here
+                using (SqlConnection conn = Connection)
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = @"
+                            UPDATE Employee
+                            SET FirstName = @firstname,
+                                LastName = @lastname,
+                                DepartmentId = @departmentId,
+                                IsSupervisor = @supervisor
+                            WHERE Id = @id";
+                        cmd.Parameters.Add(new SqlParameter("@firstname", viewModel.Employee.FirstName));
+                        cmd.Parameters.Add(new SqlParameter("@lastname", viewModel.Employee.LastName));
+                        cmd.Parameters.Add(new SqlParameter("@departmentId", viewModel.Employee.DepartmentId));
+                        cmd.Parameters.Add(new SqlParameter("@supervisor", viewModel.Employee.IsSupervisor));
+                        cmd.Parameters.Add(new SqlParameter("@id", id));
+                        cmd.ExecuteNonQuery();
 
-                return RedirectToAction(nameof(Index));
+                        int rowsAffected = cmd.ExecuteNonQuery();
+                        if (rowsAffected > 0)
+                        {
+                            return RedirectToAction(nameof(Index));
+                        }
+                        throw new Exception("No rows affected");
+                    }
+                }
             }
             catch
             {
