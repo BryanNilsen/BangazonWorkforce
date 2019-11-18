@@ -9,5 +9,6 @@ namespace BangazonWorkforce.Models.ViewModels
     {
         public Department Department { get; set; }
         public int EmployeeCount { get; set; }
+        public List<Employee> Employees { get; set; } = new List<Employee>();
     }
 }

@@ -29,6 +29,17 @@
             @Html.DisplayFor(model => model.EmployeeCount)
         </dd>
     </dl>
+    @if (Model.EmployeeCount > 0)
+    {
+        <h5>Employees:</h5>
+        <ul>
+            @foreach (var employee in Model.Employees)
+            {
+                var name = employee.FirstName + ' ' + employee.LastName;
+                <li>@Html.ActionLink(name,"Details", "Employees", new { id=employee.Id })</li>
+            }
+        </ul>
+    }
 </div>
 <div>
     @Html.ActionLink("Edit", "Edit", new { /* id = Model.PrimaryKey */ }) |

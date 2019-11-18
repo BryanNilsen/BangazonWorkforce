@@ -69,6 +69,7 @@ namespace BangazonWorkforce.Controllers
             var employees = GetEmployeesByDepartmentId(id);
             viewModel.Department = department;
             viewModel.EmployeeCount = employees.Count();
+            viewModel.Employees = employees;
 
             return View(viewModel);
         }
