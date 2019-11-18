@@ -24,7 +24,10 @@ namespace BangazonWorkforce.Models
         public int DepartmentId { get; set; }
 
         public Department Department { get; set; }
-        public Computer? Computer { get; set; }
+        public Computer Computer { get; set; }
+
+        [Display(Name = "Training Programs")]
+        public List<TrainingProgram> TrainingPrograms { get; set; } = new List<TrainingProgram>();
 
     }
 }

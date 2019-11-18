@@ -75,6 +75,7 @@ namespace BangazonWorkforce.Controllers
         public ActionResult Details(int id)
         {
             var employee = GetEmployeeById(id);
+            employee.TrainingPrograms = GetAllTrainingProgramsByEmployeeId(id);
             return View(employee);
         }
 
@@ -304,30 +305,38 @@ namespace BangazonWorkforce.Controllers
                 }
             }
         }
-        private List<TrainingProgram> GetAllTrainingProgramsByEmployeeId()
+        private List<TrainingProgram> GetAllTrainingProgramsByEmployeeId(int id)
         {
             using (SqlConnection conn = Connection)
             {
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = "SELECT Id, Name, Budget FROM Department";
+                    cmd.CommandText = @"
+                        SELECT tp.Id, tp.Name, tp.StartDate, tp.EndDate, tp.MaxAttendees
+                        FROM TrainingProgram tp
+                        LEFT JOIN EmployeeTraining et ON et.TrainingProgramId = tp.Id
+                        WHERE et.EmployeeId = @id
+                        ";
+                    cmd.Parameters.Add(new SqlParameter("@id", id));
                     SqlDataReader reader = cmd.ExecuteReader();
 
-                    List<Department> departments = new List<Department>();
+                    List<TrainingProgram> trainingPrograms = new List<TrainingProgram>();
                     while (reader.Read())
                     {
-                        departments.Add(new Department
+                        trainingPrograms.Add(new TrainingProgram
                         {
                             Id = reader.GetInt32(reader.GetOrdinal("Id")),
                             Name = reader.GetString(reader.GetOrdinal("Name")),
-                            Budget = reader.GetInt32(reader.GetOrdinal("Budget")),
+                            StartDate = reader.GetDateTime(reader.GetOrdinal("StartDate")),
+                            EndDate = reader.GetDateTime(reader.GetOrdinal("EndDate")),
+                            MaxAttendees = reader.GetInt32(reader.GetOrdinal("MaxAttendees")),
                         });
                     }
 
                     reader.Close();
 
-                    return departments;
+                    return trainingPrograms;
                 }
             }
         }
