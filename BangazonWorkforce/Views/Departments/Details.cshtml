@@ -1,4 +1,4 @@
-﻿@model BangazonWorkforce.Models.ViewModels.DepartmentDetailViewModel
+﻿@model BangazonWorkforce.Models.Department
 
 @{
     ViewData["Title"] = "Details";
@@ -11,27 +11,27 @@
     <hr />
     <dl class="row">
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Department.Name)
+            @Html.DisplayNameFor(model => model.Name)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Department.Name)
+            @Html.DisplayFor(model => model.Name)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Department.Budget)
+            @Html.DisplayNameFor(model => model.Budget)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Department.Budget, "Currency")
+            @Html.DisplayFor(model => model.Budget, "Currency")
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.EmployeeCount)
+            @Html.DisplayNameFor(model => model.Employees)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.EmployeeCount)
+            @(Model.Employees.Count().ToString())
         </dd>
     </dl>
-    @if (Model.EmployeeCount > 0)
+    @if (Model.Employees.Count > 0)
     {
-        <h5>Employees:</h5>
+        <h3>Employees in this Department:</h3>
         <ul>
             @foreach (var employee in Model.Employees)
             {
@@ -42,6 +42,6 @@
     }
 </div>
 <div>
-    @Html.ActionLink("Edit", "Edit", new { /* id = Model.PrimaryKey */ }) |
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
     <a asp-action="Index">Back to List</a>
 </div>

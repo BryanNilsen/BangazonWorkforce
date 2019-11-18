@@ -111,10 +111,11 @@ namespace BangazonWorkforce.Controllers
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"INSERT INTO Employee
-                ( FirstName, LastName, DepartmentId, IsSupervisor )
-                VALUES
-                ( @firstName, @lastName, @departmentId, @supervisor )";
+                    cmd.CommandText = @"
+                        INSERT INTO Employee
+                            (FirstName, LastName, DepartmentId, IsSupervisor)
+                        VALUES
+                            (@firstName, @lastName, @departmentId, @supervisor)";
                     cmd.Parameters.Add(new SqlParameter("@firstName", model.Employee.FirstName));
                     cmd.Parameters.Add(new SqlParameter("@lastName", model.Employee.LastName));
                     cmd.Parameters.Add(new SqlParameter("@departmentId", model.Employee.DepartmentId));
@@ -222,6 +223,7 @@ namespace BangazonWorkforce.Controllers
                 return View();
             }
         }
+
         // !! HELPER METHODS
         //GET EMPLOYEE BY ID
         public Employee GetEmployeeById(int id)
@@ -278,6 +280,7 @@ namespace BangazonWorkforce.Controllers
             }
         }
 
+        // GET ALL DEPARTMENTS
         private List<Department> GetAllDepartments()
         {
             using (SqlConnection conn = Connection)
@@ -305,6 +308,7 @@ namespace BangazonWorkforce.Controllers
                 }
             }
         }
+        // GET ALL TRAINING PROGRAMS BY EMPLOYEE ID
         private List<TrainingProgram> GetAllTrainingProgramsByEmployeeId(int id)
         {
             using (SqlConnection conn = Connection)

@@ -64,14 +64,8 @@ namespace BangazonWorkforce.Controllers
         // GET: Departments/Details/5
         public ActionResult Details(int id)
         {
-            var viewModel = new DepartmentDetailViewModel();
             var department = GetDepartmentById(id);
-            var employees = GetEmployeesByDepartmentId(id);
-            viewModel.Department = department;
-            viewModel.EmployeeCount = employees.Count();
-            viewModel.Employees = employees;
-
-            return View(viewModel);
+            return View(department);
         }
 
         // GET: Departments/Create
@@ -177,21 +171,38 @@ namespace BangazonWorkforce.Controllers
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                        SELECT d.Id, d.Name, d.Budget
+                        SELECT d.Id, d.Name, d.Budget,
+						e.Id AS EmployeeId, e.FirstName, e.LastName, e.IsSupervisor
                         FROM Department d
-                        WHERE d.Id = @id
-                        ";
+						LEFT JOIN Employee e on e.DepartmentId = d.Id
+                        WHERE d.Id = 2";
+
                     cmd.Parameters.Add(new SqlParameter("@id", id));
                     SqlDataReader reader = cmd.ExecuteReader();
                     Department department = null;
-
-                    if (reader.Read())
+                    while (reader.Read())
                     {
-                        department = new Department
+                        if (department == null)
                         {
-                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
-                            Name = reader.GetString(reader.GetOrdinal("Name")),
-                            Budget = reader.GetInt32(reader.GetOrdinal("Budget")),
+                            department = new Department
+                            {
+                                Id = id,
+                                Budget = reader.GetInt32(reader.GetOrdinal("Budget")),
+                                Name = reader.GetString(reader.GetOrdinal("Name")),
+                                Employees = new List<Employee>()
+                            };
+                        }
+                        if (!reader.IsDBNull(reader.GetOrdinal("EmployeeId")))
+                        {
+                            department.Employees.Add(new Employee()
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("EmployeeId")),
+                                FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                                LastName = reader.GetString(reader.GetOrdinal("LastName")),
+                                DepartmentId = id,
+                                IsSupervisor = reader.GetBoolean(reader.GetOrdinal("IsSupervisor"))
+
+                            });
                         };
                     }
 
@@ -200,6 +211,7 @@ namespace BangazonWorkforce.Controllers
                 }
             }
         }
+
         public List<Employee> GetEmployeesByDepartmentId(int id)
         {
 
