@@ -75,6 +75,7 @@ namespace BangazonWorkforce.Controllers
         public ActionResult Details(int id)
         {
             var employee = GetEmployeeById(id);
+            employee.TrainingPrograms = GetAllTrainingProgramsByEmployeeId(id);
             return View(employee);
         }
 
@@ -301,6 +302,41 @@ namespace BangazonWorkforce.Controllers
                     reader.Close();
 
                     return departments;
+                }
+            }
+        }
+        private List<TrainingProgram> GetAllTrainingProgramsByEmployeeId(int id)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                        SELECT tp.Id, tp.Name, tp.StartDate, tp.EndDate, tp.MaxAttendees
+                        FROM TrainingProgram tp
+                        LEFT JOIN EmployeeTraining et ON et.TrainingProgramId = tp.Id
+                        WHERE et.EmployeeId = @id
+                        ";
+                    cmd.Parameters.Add(new SqlParameter("@id", id));
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    List<TrainingProgram> trainingPrograms = new List<TrainingProgram>();
+                    while (reader.Read())
+                    {
+                        trainingPrograms.Add(new TrainingProgram
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            Name = reader.GetString(reader.GetOrdinal("Name")),
+                            StartDate = reader.GetDateTime(reader.GetOrdinal("StartDate")),
+                            EndDate = reader.GetDateTime(reader.GetOrdinal("EndDate")),
+                            MaxAttendees = reader.GetInt32(reader.GetOrdinal("MaxAttendees")),
+                        });
+                    }
+
+                    reader.Close();
+
+                    return trainingPrograms;
                 }
             }
         }

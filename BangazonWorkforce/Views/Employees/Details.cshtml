@@ -48,8 +48,29 @@
             @(Model.Computer is null ? "Not Assigned" : Model.Computer.Manufacturer + ' ' + Model.Computer.Make)
             @*@Html.DisplayFor(model => model.Computer.Make )*@
         </dd>
-
     </dl>
+    @if (Model.TrainingPrograms.Count > 0)
+    {
+        <h5>Training Programs</h5>
+        <dl class="row">
+            <dt class="col-sm-6">
+                Name
+            </dt>
+            <dt class="col-sm-6">
+                Start Date
+            </dt>
+        </dl>
+        @foreach (var tp in Model.TrainingPrograms)
+        {
+            string trainingDateStyle = tp.EndDate < DateTime.Today
+                ? "background-color: #eeeeee" 
+                : "background-color: #9ef5b1";
+            <dl class="row" style="@trainingDateStyle">
+                <dd class="col-sm-6">@tp.Name</dd>
+                <dd class="col-sm-6">@tp.StartDate</dd>
+            </dl>
+        }
+    }
 </div>
 <div>
     @Html.ActionLink("Edit", "Edit", new { /* id = Model.PrimaryKey */ }) |
