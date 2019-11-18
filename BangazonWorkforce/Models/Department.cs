@@ -13,6 +13,7 @@ namespace BangazonWorkforce.Models
         [Required]
         public string Name { get; set; }
         [Required]
+        [DisplayFormat(DataFormatString = "{0:C}", ApplyFormatInEditMode = true)]
         public int Budget { get; set; }
         public List<Employee> Employees { get; set; } = new List<Employee>();
     }
