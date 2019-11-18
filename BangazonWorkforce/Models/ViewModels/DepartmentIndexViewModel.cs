@@ -13,6 +13,7 @@ namespace BangazonWorkforce.Models.ViewModels
         [Required]
         public string Name { get; set; }
         [Required]
+        [DisplayFormat(DataFormatString = "{0:C}", ApplyFormatInEditMode = true)]
         public int Budget { get; set; }
 
         [Display(Name = "Employee Count")]
